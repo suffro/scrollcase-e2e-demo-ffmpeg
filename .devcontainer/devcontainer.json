@@ -1,0 +1,26 @@
+{
+  "name": "Ship ffmpeg in a signed box with no interpreter",
+  "postCreateCommand": "bash .devcontainer/setup.sh",
+  "postAttachCommand": "code --reuse-window README.md",
+  "hostRequirements": {
+    "memory": "8gb"
+  },
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "workbench.editorAssociations": {
+          "README.md": "vscode.markdown.preview.editor"
+        },
+        "files.exclude": {
+          ".devcontainer": true,
+          ".vscode": true,
+          ".gitignore": true,
+          ".gitattributes": true,
+          "LICENSE": true,
+          "AGENTS.md": true,
+          "node_modules": true
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "paths": {
+    "scrolls": "scrolls",
+    "build": ".scrollcase/build",
+    "dist": ".scrollcase/dist",
+    "keys": ".scrollcase/keys",
+    "toolchain": ".scrollcase/toolchain"
+  }
+}
