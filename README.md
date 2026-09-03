@@ -103,7 +103,9 @@ Three probes, and each is doing work:
 - The third proves the failure path, and `254` is not a typo. ffmpeg reports the negative C error
   number for a missing file; `ENOENT` is 2, and an exit status is one byte, so `-2` arrives as 254.
   **A self-test asserts the binary's real contract, not a convention** — this value was measured
-  against a built box, after a first attempt expecting `1` failed.
+  against a built box, after a first attempt expecting `1` failed. Because it is a real failure,
+  every `build` and every `verify --self-test` from here on prints a real ffmpeg error; step 6 shows
+  what it looks like.
 
 ## 4. Lock and audit
 
@@ -136,11 +138,34 @@ scrollcase build transcode-demo/linux-x86_64-cpu --asset-base-url https://assets
 Expect a few minutes and a few hundred megabytes. You will see the real encode scroll past — that is
 the self-test, running before anything is signed.
 
+> **It ends with an ffmpeg error, and the error is the point.** The last thing the self-test prints
+> is this:
+>
+> ```
+> [in#0 @ 0x55b3ed018380] Error opening input: No such file or directory
+> Error opening input file no-such-input.mp4.
+> Error opening input files: No such file or directory
+> ```
+>
+> That is the third probe from step 3b, asking for a file that does not exist on purpose and getting
+> the answer it declared: ffmpeg exits `254`, so the probe **passes**. Scrollcase does not filter or
+> swallow a probe's output — you see exactly what the box printed, because a self-test that hides
+> what the binary said is a self-test you cannot debug. A probe that genuinely fails looks different:
+> the build stops there, nothing is signed, and the final line is Scrollcase's own, naming the status
+> it got and the one it wanted (`… exited with status 1 (expected 254)`).
+
 ## 7. Verify
 
 ```sh
 scrollcase verify .scrollcase/dist/boxes/transcode-demo/1.0.0/linux-x86_64-cpu/*.release.json --self-test
 ```
+
+`--self-test` runs those same three probes again, this time against the archive that was signed
+rather than the payload the build assembled — so the ffmpeg error above scrolls past a second time,
+for the same reason, and the run still ends in `Verified transcode-demo 1.0.0
+(linux-x86_64-cpu)`. Without the flag,
+`verify` checks the signature, the archive's size and hash and the manifest, and never starts the
+binary at all.
 
 ## ✓ Run it
 
